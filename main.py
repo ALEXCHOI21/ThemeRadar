@@ -165,9 +165,6 @@ def read_root():
         html_content = f.read()
     return HTMLResponse(content=html_content)
 
-
-
-
 @app.get("/api/themes")
 def get_thematic_analysis():
     """
@@ -188,7 +185,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "Data Center GPU 가속기 (분기 매출액의 88% 돌파)",
                     "volume_amount": "$4.85B (약 48억 5천만 달러 강한 매집)",
-                    "net_capital_flow": "🟢 순유입 유지 (기관 4.2B 신규 유입)"
+                    "net_capital_flow": "🟢 순유입 유지 (기관 4.2B 신규 유입)",
+                    "revenue_2026_q1": "$26.04B (약 35.8조원)"
                 },
                 {
                     "name": "Broadcom Inc.",
@@ -198,7 +196,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "AI 커스텀 ASIC 반도체 & Tomahawk 스위칭 칩 (매출 비중 65% 돌파)",
                     "volume_amount": "$1.92B (약 19억 2천만 달러 매집)",
-                    "net_capital_flow": "🟢 순유입 유지 (연기금/ETF 신규 블록딜 유입)"
+                    "net_capital_flow": "🟢 순유입 유지 (연기금/ETF 신규 블록딜 유입)",
+                    "revenue_2026_q1": "$11.96B (약 16.5조원)"
                 },
                 {
                     "name": "Arista Networks Inc.",
@@ -208,7 +207,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "초고속 AI 데이터센터 스위치 플랫폼 (이더넷 통신 솔루션 매출 82%)",
                     "volume_amount": "$850M (약 8억 5천만 달러 유입)",
-                    "net_capital_flow": "🟢 순유입 유지 (기관계 차익 매물 소화 완료)"
+                    "net_capital_flow": "🟢 순유입 유지 (기관계 차익 매물 소화 완료)",
+                    "revenue_2026_q1": "$1.57B (약 2.1조원)"
                 },
                 {
                     "name": "Super Micro Computer Inc.",
@@ -218,7 +218,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "AI 액체 냉각(Liquid Cooling) 고성능 서버 랙 조립 솔루션 (매출 90% 이상)",
                     "volume_amount": "$1.20B (약 12억 달러 변동성 거래)",
-                    "net_capital_flow": "🔴 순유출 전환 (기관 $450M 물량 차익 실현 이탈)"
+                    "net_capital_flow": "🔴 순유출 전환 (기관 $450M 물량 차익 실현 이탈)",
+                    "revenue_2026_q1": "$3.85B (약 5.3조원)"
                 }
             ]
         },
@@ -235,7 +236,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "Mounjaro & Zepbound (GLP-1) 매출 폭증 ($12B+, 매출 대비 38% 돌파)",
                     "volume_amount": "$2.15B (약 21억 5천만 달러 대형 기관 매집)",
-                    "net_capital_flow": "🟢 순유입 유지 (장기 연기금 물량 매집 후 잠금)"
+                    "net_capital_flow": "🟢 순유입 유지 (장기 연기금 물량 매집 후 잠금)",
+                    "revenue_2026_q1": "$8.77B (약 12.1조원)"
                 },
                 {
                     "name": "Novo Nordisk A/S",
@@ -245,7 +247,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "Ozempic & Wegovy 글로벌 독점 판권 매출 (회사 전체 매출 비중 52% 초과)",
                     "volume_amount": "$1.62B (약 16억 2천만 달러 유입)",
-                    "net_capital_flow": "🟢 순유입 유지 (유럽 및 미국 대형 운용사 물량 순유입)"
+                    "net_capital_flow": "🟢 순유입 유지 (유럽 및 미국 대형 운용사 물량 순유입)",
+                    "revenue_2026_q1": "65.3B DKK (약 12.8조원)"
                 },
                 {
                     "name": "Viking Therapeutics Inc.",
@@ -255,7 +258,8 @@ def get_thematic_analysis():
                     "actual_business_status": False,
                     "segment_revenue_fact": "차세대 경구용/주사용 비만치료제 임상 2상 통과 (현재 실질 상용 매출액 Zero)",
                     "volume_amount": "$320M (약 3억 2천만 달러 변동성 투기 거래)",
-                    "net_capital_flow": "🔴 순유출 우세 (임상 재료 소멸에 따른 기관 $120M 이탈)"
+                    "net_capital_flow": "🔴 순유출 우세 (임상 재료 소멸에 따른 기관 $120M 이탈)",
+                    "revenue_2026_q1": "$0.00 (현재 매출 발생 안 함)"
                 }
             ]
         },
@@ -272,7 +276,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "미 육군/정부/국방부 타겟 AIP 및 Gotham 시스템 (전체 정부 매출 비중 54%)",
                     "volume_amount": "$1.45B (약 14억 5천만 달러 강한 매집)",
-                    "net_capital_flow": "🟢 순유입 폭증 (국방 정보 AI 시스템 장기 공급 신규 자금 유입)"
+                    "net_capital_flow": "🟢 순유입 폭증 (국방 정보 AI 시스템 장기 공급 신규 자금 유입)",
+                    "revenue_2026_q1": "$634M (약 8,700억원)"
                 },
                 {
                     "name": "Lockheed Martin Corp.",
@@ -282,7 +287,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "전투기(F-35) 및 미사일 방어 시스템 전술 하드웨어 계약 (정부 매출 비중 98%)",
                     "volume_amount": "$780M (약 7억 8천만 달러 안정 유입)",
-                    "net_capital_flow": "🟢 순유입 유지 (공공 방산 예산 증액에 따른 세력 지분 잠금)"
+                    "net_capital_flow": "🟢 순유입 유지 (공공 방산 예산 증액에 따른 세력 지분 잠금)",
+                    "revenue_2026_q1": "$17.20B (약 23.7조원)"
                 },
                 {
                     "name": "RTX Corp.",
@@ -292,7 +298,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "패트리어트 미사일 체계 및 레이더/항공 전자 장비 독점 생산 공급",
                     "volume_amount": "$910M (약 9억 1천만 달러 유입)",
-                    "net_capital_flow": "🟢 순유입 유지 (기관 지분 매집 후 이탈 시그널 미약)"
+                    "net_capital_flow": "🟢 순유입 유지 (기관 지분 매집 후 이탈 시그널 미약)",
+                    "revenue_2026_q1": "$19.30B (약 26.6조원)"
                 }
             ]
         },
@@ -309,7 +316,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "Azure & Intelligent Cloud 비즈니스 부문 (회사 전체 매출의 43% 돌파)",
                     "volume_amount": "$3.80B (약 38억 달러 매집 지속)",
-                    "net_capital_flow": "🟢 순유입 유지 (기관 연기금 인덱스 편입 신규 자금 안착)"
+                    "net_capital_flow": "🟢 순유입 유지 (기관 연기금 인덱스 편입 신규 자금 안착)",
+                    "revenue_2026_q1": "$61.86B (약 85.3조원)"
                 },
                 {
                     "name": "Amazon.com Inc.",
@@ -319,7 +327,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "AWS (Amazon Web Services) 퍼블릭 클라우드 인프라 (회사 영업이익의 60% 이상 기여)",
                     "volume_amount": "$2.95B (약 29억 5천만 달러 유입)",
-                    "net_capital_flow": "🟢 순유입 유지 (클라우드 수요 턴어라운드 연동 세력 유지)"
+                    "net_capital_flow": "🟢 순유입 유지 (클라우드 수요 턴어라운드 연동 세력 유지)",
+                    "revenue_2026_q1": "$143.30B (약 197조원)"
                 }
             ]
         }
@@ -340,7 +349,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "하이닉스/마이크론 전용 듀얼 TC 본더 납품 (장비 매출액의 62% 점유)",
                     "volume_amount": "3,450억원 (최근 1주일 누적 매집 대금)",
-                    "net_capital_flow": "🟢 순유입 폭증 (외인/기관 연기금 주도로 개인 물량 흡수)"
+                    "net_capital_flow": "🟢 순유입 폭증 (외인/기관 연기금 주도로 개인 물량 흡수)",
+                    "revenue_2026_q1": "1,920억원"
                 },
                 {
                     "name": "피에스케이홀딩스",
@@ -350,7 +360,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "HBM 잔류 디스컴 및 패키징용 리플로우 고성능 장비 (매출액 비중 42% 초과)",
                     "volume_amount": "920억원 (최근 1주일 매집 완료)",
-                    "net_capital_flow": "🟢 순유입 유지 (차기 장비 양산 승인 연동 기관 수급 유입)"
+                    "net_capital_flow": "🟢 순유입 유지 (차기 장비 양산 승인 연동 기관 수급 유입)",
+                    "revenue_2026_q1": "345억원"
                 },
                 {
                     "name": "에스티아이",
@@ -360,7 +371,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "HBM 전용 리플로우(Reflow) 장비 양산 공급 및 반도체 화학약품 공급시스템(CCSS)",
                     "volume_amount": "480억원 (변동성 수급 거래)",
-                    "net_capital_flow": "🔴 순유출 전환 (단기 물량 소화로 투신/사모펀드 일부 차익실현)"
+                    "net_capital_flow": "🔴 순유출 전환 (단기 물량 소화로 투신/사모펀드 일부 차익실현)",
+                    "revenue_2026_q1": "890억원"
                 },
                 {
                     "name": "테크윙",
@@ -370,7 +382,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "HBM 프로브 스테이션 메모리 웨이퍼 고속 검사장비 양산 승인 및 공급 개시",
                     "volume_amount": "1,150억원 (대량 장기 매집)",
-                    "net_capital_flow": "🟢 순유입 유지 (메이저 테스트 장비 독점 팩트에 기반한 지분 잠금)"
+                    "net_capital_flow": "🟢 순유입 유지 (메이저 테스트 장비 독점 팩트에 기반한 지분 잠금)",
+                    "revenue_2026_q1": "520억원"
                 }
             ]
         },
@@ -387,7 +400,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "K9 자주포 및 천무 미사일 시스템 폴란드/호주 수출 잔고 (방산 수출 매출 비중 68%)",
                     "volume_amount": "4,120억원 (강력한 외인/기관 순매수 집중)",
-                    "net_capital_flow": "🟢 순유입 폭증 (글로벌 지정학 수혜로 세력 잔존 강함)"
+                    "net_capital_flow": "🟢 순유입 폭증 (글로벌 지정학 수혜로 세력 잔존 강함)",
+                    "revenue_2026_q1": "2.12조원"
                 },
                 {
                     "name": "LIG넥스원",
@@ -397,7 +411,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "천궁-II 중거리 요격 미사일 체계 사우디/UAE 수출 계약 잔고 집중 (수출 매출 급증)",
                     "volume_amount": "2,050억원 (견조한 매집 수급)",
-                    "net_capital_flow": "🟢 순유입 유지 (중동 국가 추가 방산 공급계약 연동 자금)"
+                    "net_capital_flow": "🟢 순유입 유지 (중동 국가 추가 방산 공급계약 연동 자금)",
+                    "revenue_2026_q1": "6,800억원"
                 },
                 {
                     "name": "현대로템",
@@ -407,7 +422,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "K2 흑표 전차 완성품 폴란드 인도 물량 본격 반영 (디펜스 사업 부문 흑자폭 확대)",
                     "volume_amount": "1,890억원 (수급 강세 유지)",
-                    "net_capital_flow": "🟢 순유입 유지 (실적 어닝 서프라이즈 팩트에 의한 세력 장기보유)"
+                    "net_capital_flow": "🟢 순유입 유지 (실적 어닝 서프라이즈 팩트에 의한 세력 장기보유)",
+                    "revenue_2026_q1": "9,450억원"
                 }
             ]
         },
@@ -424,7 +440,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "StyleKorean 글로벌 유통 플랫폼 매출액 폭증 (총 매출의 92% 이상 역직구 수출)",
                     "volume_amount": "2,200억원 (역직구 매출 증가 연동 매집)",
-                    "net_capital_flow": "🟢 순유입 유지 (기관 연기금 및 외인 중심 유통망 장악 세력)"
+                    "net_capital_flow": "🟢 순유입 유지 (기관 연기금 및 외인 중심 유통망 장악 세력)",
+                    "revenue_2026_q1": "1,480억원"
                 },
                 {
                     "name": "한국콜마",
@@ -434,7 +451,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "글로벌 특허 썬케어 제품 위탁생산 주문 폭증 및 미국 OEM 법인 턴어라운드 돌입",
                     "volume_amount": "980억원 (OEM 수주 연동 자금)",
-                    "net_capital_flow": "🟢 순유입 유지 (서구권 화장품 오프라인 매장 침투에 따른 기관 안착)"
+                    "net_capital_flow": "🟢 순유입 유지 (서구권 화장품 오프라인 매장 침투에 따른 기관 안착)",
+                    "revenue_2026_q1": "5,890억원"
                 },
                 {
                     "name": "코스맥스",
@@ -444,7 +462,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "국내 최대 화장품 전문 ODM 생산량 확보 및 동남아/중국 로컬 브랜드 OEM 점유율 우위",
                     "volume_amount": "740억원 (동남아 수출 증진 유입)",
-                    "net_capital_flow": "🟢 순유입 유지 (중국 로컬 브랜드 생산 승인으로 기관 수급 잔존)"
+                    "net_capital_flow": "🟢 순유입 유지 (중국 로컬 브랜드 생산 승인으로 기관 수급 잔존)",
+                    "revenue_2026_q1": "5,120억원"
                 }
             ]
         },
@@ -461,7 +480,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "하이니켈 N86/N87 양극재 대규모 완성차 기업 직납 계약 매출 부문 (80% 이상 기여)",
                     "volume_amount": "1,100억원 (전기차 업황 우려 속 변동성)",
-                    "net_capital_flow": "🔴 순유출 우세 (유럽 공장 가동률 지연에 따른 연기금/투신 $300M 이탈)"
+                    "net_capital_flow": "🔴 순유출 우세 (유럽 공장 가동률 지연에 따른 연기금/투신 $300M 이탈)",
+                    "revenue_2026_q1": "1.08조원"
                 },
                 {
                     "name": "에코프로머티",
@@ -471,7 +491,8 @@ def get_thematic_analysis():
                     "actual_business_status": True,
                     "segment_revenue_fact": "배터리용 하이니켈 전구체 합성 공정 독점 공급망 (계열사 내부 거래 매출 비중 집중)",
                     "volume_amount": "1,650억원 (개인 중심의 투기 수급)",
-                    "net_capital_flow": "🔴 순유출 폭증 (외인/기관 대량 차익실현 출회 및 개인 패닉 바잉)"
+                    "net_capital_flow": "🔴 순유출 폭증 (외인/기관 대량 차익실현 출회 및 개인 패닉 바잉)",
+                    "revenue_2026_q1": "2,420억원"
                 }
             ]
         }

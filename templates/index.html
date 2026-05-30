@@ -59,6 +59,7 @@
                             <tr>
                                 <th>종목명 / 티커</th>
                                 <th>Fact Score</th>
+                                <th>2026 Q1 매출액</th>
                                 <th>1주 매집액 규모</th>
                                 <th>자금 유·출입 세력 흐름</th>
                                 <th>최근 수급 분포 (외인/기관/개인)</th>
@@ -68,7 +69,7 @@
                         </thead>
                         <tbody id="stock-table-body">
                             <tr>
-                                <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                                <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 3rem;">
                                     좌측 테마 목록에서 분석할 섹터를 클릭하십시오. DART/SEC 공시와 매칭을 시작합니다.
                                 </td>
                             </tr>
@@ -156,7 +157,7 @@
             document.getElementById('active-theme-desc').innerText = '정밀 기관 수급 및 실제 재무 공시 팩트 체크 리포트';
             document.getElementById('stock-table-body').innerHTML = `
                 <tr>
-                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                    <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 3rem;">
                         좌측 테마 목록에서 분석할 섹터를 클릭하십시오. DART/SEC 공시와 매칭을 시작합니다.
                     </td>
                 </tr>
@@ -213,6 +214,9 @@
                     </td>
                     <td>
                         <span class="fact-score-badge ${tierClass}">${tierText}</span>
+                    </td>
+                    <td style="font-weight: 600; color: #007aff; font-size: 0.85rem;">
+                        ${stock.revenue_2026_q1}
                     </td>
                     <td style="font-weight: 700; color: #fff; font-size: 0.9rem;">
                         ${stock.volume_amount}
