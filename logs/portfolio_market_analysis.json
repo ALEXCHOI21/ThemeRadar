@@ -1,0 +1,29 @@
+{
+  "ONDO": {
+    "symbol": "ONDO/USDT:USDT",
+    "price": 0.4005,
+    "change_24h": -1.1843079200592133,
+    "ema_50": 0.342530234204891,
+    "ema_200": 0.29159999999999997,
+    "rsi": 55.739324775495284,
+    "support": 0.3327,
+    "resistance": 0.4882,
+    "vol_spike": 0.2846943411092447,
+    "trend": "BULLISH 📈",
+    "swept_low": "NO"
+  },
+  "LINK": {
+    "symbol": "LINK/USDT:USDT",
+    "price": 9.343,
+    "change_24h": -0.3944562899786841,
+    "ema_50": 9.520663212748978,
+    "ema_200": 9.210280000000001,
+    "rsi": 43.659422071080584,
+    "support": 9.034,
+    "resistance": 10.87,
+    "vol_spike": 0.38858448790332556,
+    "trend": "BULLISH 📈",
+    "swept_low": "NO"
+  },
+  "timestamp": "2026-05-27T19:55:51.335234"
+}

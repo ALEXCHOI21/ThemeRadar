@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThemeRadar - 100% Fact-Based 주식 테마 분석 플랫폼</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Dashboard Header -->
+        <header>
+            <div class="brand">
+                <span class="brand-icon">⚡</span>
+                <h1 class="brand-title">ThemeRadar</h1>
+                <span class="brand-tag">ChoiGPT Spec</span>
+            </div>
+            
+            <!-- Market Selector Tabs -->
+            <div class="tab-container">
+                <button class="tab-btn active" id="tab-kr" onclick="switchMarket('kr')">
+                    🇰🇷 대한민국 시장
+                </button>
+                <button class="tab-btn" id="tab-us" onclick="switchMarket('us')">
+                    🇺🇸 미국 시장
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace Grid -->
+        <div class="dashboard-grid">
+            <!-- Left Panel: Themes -->
+            <div class="glass-card theme-panel">
+                <div class="panel-title">
+                    <span>🔥 실시간 핫 섹터 & 테마</span>
+                    <span class="badge" id="theme-count">0개 감지</span>
+                </div>
+                <div class="theme-list" id="theme-list-container">
+                    <!-- Dynamic Theme Cards render here -->
+                </div>
+            </div>
+
+            <!-- Right Panel: Leaderboard Details -->
+            <div class="glass-card detail-panel">
+                <div class="detail-header">
+                    <div class="detail-title-group">
+                        <h2 id="active-theme-name">테마를 선택하세요</h2>
+                        <p class="detail-desc" id="active-theme-desc">정밀 기관 수급 및 실제 재무 공시 팩트 체크 리포트</p>
+                    </div>
+                    <div class="badge" style="background: rgba(0,200,5,0.1); border-color: rgba(0,200,5,0.3); color: var(--color-green);">
+                        Fact Verified 100%
+                    </div>
+                </div>
+
+                <!-- Stock Table -->
+                <div class="table-wrapper">
+                     <table>
+                        <thead>
+                            <tr>
+                                <th>종목명 / 티커</th>
+                                <th>Fact Score</th>
+                                <th>1주 매집액 규모</th>
+                                <th>자금 유·출입 세력 흐름</th>
+                                <th>최근 수급 분포 (외인/기관/개인)</th>
+                                <th>실제 사업 실적 여부</th>
+                                <th>핵심 매출 세그먼트 (Fact)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stock-table-body">
+                            <tr>
+                                <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                                    좌측 테마 목록에서 분석할 섹터를 클릭하십시오. DART/SEC 공시와 매칭을 시작합니다.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Strategic Summary Footer -->
+                <div class="info-footer">
+                    <span>데이터 소스: 한국거래소(KRX), 금융감독원 DART, SEC Edgar, Yahoo Finance API</span>
+                    <span>마지막 업데이트: <span id="update-timestamp">-</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Frontend logic with tab transitions and live rendering -->
+    <script>
+        let currentMarket = 'kr';
+        let allData = { kr: [], us: [] };
+        let activeThemeId = null;
+
+        // Fetch dashboard data
+        async function fetchDashboardData() {
+            try {
+                const response = await fetch('/api/themes');
+                const data = await response.json();
+                allData = data;
+                renderThemeList();
+            } catch (err) {
+                console.error("데이터 로드 실패:", err);
+            }
+        }
+
+        // Switch Market
+        function switchMarket(market) {
+            currentMarket = market;
+            document.getElementById('tab-kr').classList.toggle('active', market === 'kr');
+            document.getElementById('tab-us').classList.toggle('active', market === 'us');
+            activeThemeId = null;
+            renderThemeList();
+            resetDetailView();
+        }
+
+        // Render themes on left side
+        function renderThemeList() {
+            const listContainer = document.getElementById('theme-list-container');
+            listContainer.innerHTML = '';
+            
+            const themes = allData[currentMarket] || [];
+            document.getElementById('theme-count').innerText = `${themes.length}개 섹터`;
+
+            themes.forEach((theme, index) => {
+                const card = document.createElement('div');
+                card.className = `theme-card ${activeThemeId === index ? 'active' : ''}`;
+                card.onclick = () => selectTheme(index);
+
+                // Find top leader stock
+                const topStock = theme.stocks.reduce((prev, current) => (prev.fact_score > current.fact_score) ? prev : current, theme.stocks[0]);
+
+                card.innerHTML = `
+                    <div class="theme-card-header">
+                        <span class="theme-name">${theme.name}</span>
+                        <span class="theme-perf ${theme.change >= 0 ? 'up' : 'down'}">
+                            ${theme.change >= 0 ? '+' : ''}${theme.change}%
+                        </span>
+                    </div>
+                    <div class="theme-card-body">
+                        <span>대장주: <span class="theme-leader">${topStock ? topStock.name : '-'}</span></span>
+                        <span>종목수: ${theme.stocks.length}개</span>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+
+            // Auto-select first theme if available and none active
+            if (themes.length > 0 && activeThemeId === null) {
+                selectTheme(0);
+            }
+        }
+
+        // Reset detail view to blank
+        function resetDetailView() {
+            document.getElementById('active-theme-name').innerText = '테마를 선택하세요';
+            document.getElementById('active-theme-desc').innerText = '정밀 기관 수급 및 실제 재무 공시 팩트 체크 리포트';
+            document.getElementById('stock-table-body').innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                        좌측 테마 목록에서 분석할 섹터를 클릭하십시오. DART/SEC 공시와 매칭을 시작합니다.
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Select a specific theme
+        function selectTheme(index) {
+            activeThemeId = index;
+            
+            // Highlight active card
+            const cards = document.querySelectorAll('.theme-card');
+            cards.forEach((c, idx) => {
+                c.classList.toggle('active', idx === index);
+            });
+
+            const theme = allData[currentMarket][index];
+            if (!theme) return;
+
+            document.getElementById('active-theme-name').innerText = theme.name;
+            document.getElementById('active-theme-desc').innerText = theme.description;
+            document.getElementById('update-timestamp').innerText = new Date().toLocaleTimeString();
+
+            // Populate table
+            const tbody = document.getElementById('stock-table-body');
+            tbody.innerHTML = '';
+
+            theme.stocks.forEach(stock => {
+                const tr = document.createElement('tr');
+                
+                // Volume distributions calculation
+                const totalVal = stock.volume_flow.institution + stock.volume_flow.foreign + stock.volume_flow.individual;
+                const instPct = ((stock.volume_flow.institution / totalVal) * 100).toFixed(0);
+                const forePct = ((stock.volume_flow.foreign / totalVal) * 100).toFixed(0);
+                const indivPct = ((stock.volume_flow.individual / totalVal) * 100).toFixed(0);
+
+                // Tier class designation
+                let tierClass = 'score-tier-3';
+                let tierText = `Tier 3 (${stock.fact_score}점)`;
+                if (stock.fact_score >= 80) {
+                    tierClass = 'score-tier-1';
+                    tierText = `Tier 1 (진성 대장주: ${stock.fact_score}점)`;
+                } else if (stock.fact_score >= 60) {
+                    tierClass = 'score-tier-2';
+                    tierText = `Tier 2 (${stock.fact_score}점)`;
+                }
+
+                tr.innerHTML = `
+                    <td>
+                        <div class="stock-name-cell">
+                            <span class="stock-name">${stock.name}</span>
+                            <span class="stock-symbol">${stock.symbol}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="fact-score-badge ${tierClass}">${tierText}</span>
+                    </td>
+                    <td style="font-weight: 700; color: #fff; font-size: 0.9rem;">
+                        ${stock.volume_amount}
+                    </td>
+                    <td style="font-size: 0.85rem; font-weight: 600;">
+                        ${stock.net_capital_flow}
+                    </td>
+                    <td>
+                        <div class="flow-bar-container">
+                            <div class="flow-bar-inst" style="width: ${instPct}%" title="기관 수급"></div>
+                            <div class="flow-bar-fore" style="width: ${forePct}%" title="외인 수급"></div>
+                            <div class="flow-bar-indiv" style="width: ${indivPct}%" title="개인 수급"></div>
+                        </div>
+                        <div class="flow-labels">
+                            <span>기관 ${instPct}%</span>
+                            <span>외인 ${forePct}%</span>
+                            <span>개인 ${indivPct}%</span>
+                        </div>
+                    </td>
+                    <td>
+                        ${stock.actual_business_status 
+                            ? `<span class="status-pill success">● 실적 연동성 입증 (흑자)</span>` 
+                            : `<span class="status-pill danger">○ 단순 기대감 (적자/매출無)</span>`
+                        }
+                    </td>
+                    <td>
+                        <div class="revenue-item">세그먼트: <strong>${stock.segment_revenue_fact}</strong></div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Initialize on page load
+        window.onload = () => {
+            fetchDashboardData();
+        };
+    </script>
+</body>
+</html>
