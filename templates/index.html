@@ -35,40 +35,43 @@
 
         <!-- Main Workspace Grid -->
         <div class="dashboard-grid">
-            <!-- Left Panel: Themes -->
-            <div class="glass-card theme-panel">
-                <div class="panel-title">
-                    <span>🔥 실시간 핫 섹터 & 테마</span>
-                    <span class="badge" id="theme-count">0개 감지</span>
+            <!-- Left Side Grid Column Wrapper -->
+            <div class="left-column" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <!-- Left Panel: Themes -->
+                <div class="glass-card theme-panel">
+                    <div class="panel-title">
+                        <span>🔥 실시간 핫 섹터 & 테마</span>
+                        <span class="badge" id="theme-count">0개 감지</span>
+                    </div>
+                    <div class="theme-list" id="theme-list-container">
+                        <!-- Dynamic Theme Cards render here -->
+                    </div>
                 </div>
-                <div class="theme-list" id="theme-list-container">
-                    <!-- Dynamic Theme Cards render here -->
-                </div>
-            </div>
 
-            <!-- ChoiGPT Super-Gap Next Sector Scenarios -->
-            <div class="glass-card scenario-card" style="background: linear-gradient(135deg, rgba(0, 122, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%); border: 1px solid rgba(0, 122, 255, 0.15); border-radius: 12px; padding: 1.2rem; display: flex; flex-direction: column; gap: 0.8rem;">
-                <div style="font-size: 0.85rem; font-weight: 700; color: var(--color-blue); display: flex; align-items: center; gap: 0.4rem;">
-                    🔮 ChoiGPT 초격차 다음 섹터 예측 시나리오 (Rotation)
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 0.8rem;">
-                    <!-- Scenario 1 -->
-                    <div style="background: rgba(255,255,255,0.02); padding: 0.8rem; border-radius: 6px; border-left: 3px solid var(--color-blue);">
-                        <div style="font-weight: 700; font-size: 0.78rem; color: #fff; margin-bottom: 0.3rem;">[시나리오 1] AI 하드웨어 병목 ➡️ 실리콘 포토닉스(CPO) 광통신 이동</div>
-                        <p style="margin: 0; font-size: 0.7rem; color: var(--text-secondary); line-height: 1.5;">GPU 연산 가속기 랠리 극대화에 따른 서버 간 대역폭 병목 극에 달함. 구리 배선 한계를 돌파하기 위한 <strong>빛(Optics) 기반 실리콘 포토닉스 및 CPO 패키징 장비주</strong>로의 자금 순환 급격히 전개 예측.</p>
-                        <div style="font-size: 0.65rem; color: var(--color-blue); margin-top: 0.4rem; font-weight: 600;">핵심 수혜주: AVGO, ANET, 042700 (한미반도체)</div>
+                <!-- ChoiGPT Super-Gap Next Sector Scenarios -->
+                <div class="glass-card scenario-card" style="background: linear-gradient(135deg, rgba(0, 122, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%); border: 1px solid rgba(0, 122, 255, 0.15); border-radius: 12px; padding: 1.2rem; display: flex; flex-direction: column; gap: 0.8rem;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--color-blue); display: flex; align-items: center; gap: 0.4rem;">
+                        🔮 ChoiGPT 초격차 다음 섹터 예측 시나리오 (Rotation)
                     </div>
-                    <!-- Scenario 2 -->
-                    <div style="background: rgba(255,255,255,0.02); padding: 0.8rem; border-radius: 6px; border-left: 3px solid var(--color-green);">
-                        <div style="font-weight: 700; font-size: 0.78rem; color: #fff; margin-bottom: 0.3rem;">[시나리오 2] GLP-1 비만 주사제 ➡️ 경구용 및 원료의약품(API) OEM 폭발</div>
-                        <p style="margin: 0; font-size: 0.7rem; color: var(--text-secondary); line-height: 1.5;">주사제의 공급 부족 사태로 투약 편의성을 보강한 <strong>경구용(Oral) 펩타이드 비만치료제 임상 통과주 및 바이오 의약품 원료합성(API) 대량 양산 밸류체인</strong>으로의 메가 펀드 유입 임박.</p>
-                        <div style="font-size: 0.65rem; color: var(--color-green); margin-top: 0.4rem; font-weight: 600;">핵심 수혜주: VKTX, NVO, 161890 (한국콜마)</div>
-                    </div>
-                    <!-- Scenario 3 -->
-                    <div style="background: rgba(255,255,255,0.02); padding: 0.8rem; border-radius: 6px; border-left: 3px solid #ff9500;">
-                        <div style="font-weight: 700; font-size: 0.78rem; color: #fff; margin-bottom: 0.3rem;">[시나리오 3] AI 데이터센터 가동 폭증 ➡️ SMR 원자력 & 초고압 송전 인프라</div>
-                        <p style="margin: 0; font-size: 0.7rem; color: var(--text-secondary); line-height: 1.5;">기하급수적인 연산용 전력 소모량으로 미국 그리드 송전망 마비 우려 증가. 탄소 배출 없는 24시간 상시 전원인 <strong>SMR(소형원자로) 및 초고압 기저변압기 인프라 설비</strong> 독점 수혜국면 진입.</p>
-                        <div style="font-size: 0.65rem; color: #ff9500; margin-top: 0.4rem; font-weight: 600;">핵심 수혜주: PLTR (AI 전력 관제), 방산/전설 밸류체인</div>
+                    <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                        <!-- Scenario 1 -->
+                        <div style="background: rgba(255,255,255,0.02); padding: 0.8rem; border-radius: 6px; border-left: 3px solid var(--color-blue);">
+                            <div style="font-weight: 700; font-size: 0.78rem; color: #fff; margin-bottom: 0.3rem;">[시나리오 1] AI 하드웨어 병목 ➡️ 실리콘 포토닉스(CPO) 광통신 이동</div>
+                            <p style="margin: 0; font-size: 0.7rem; color: var(--text-secondary); line-height: 1.5;">GPU 연산 가속기 랠리 극대화에 따른 서버 간 대역폭 병목 극에 달함. 구리 배선 한계를 돌파하기 위한 <strong>빛(Optics) 기반 실리콘 포토닉스 및 CPO 패키징 장비주</strong>로의 자금 순환 급격히 전개 예측.</p>
+                            <div style="font-size: 0.65rem; color: var(--color-blue); margin-top: 0.4rem; font-weight: 600;">핵심 수혜주: AVGO, ANET, 042700 (한미반도체)</div>
+                        </div>
+                        <!-- Scenario 2 -->
+                        <div style="background: rgba(255,255,255,0.02); padding: 0.8rem; border-radius: 6px; border-left: 3px solid var(--color-green);">
+                            <div style="font-weight: 700; font-size: 0.78rem; color: #fff; margin-bottom: 0.3rem;">[시나리오 2] GLP-1 비만 주사제 ➡️ 경구용 및 원료의약품(API) OEM 폭발</div>
+                            <p style="margin: 0; font-size: 0.7rem; color: var(--text-secondary); line-height: 1.5;">주사제의 공급 부족 사태로 투약 편의성을 보강한 <strong>경구용(Oral) 펩타이드 비만치료제 임상 통과주 및 바이오 의약품 원료합성(API) 대량 양산 밸류체인</strong>으로의 메가 펀드 유입 임박.</p>
+                            <div style="font-size: 0.65rem; color: var(--color-green); margin-top: 0.4rem; font-weight: 600;">핵심 수혜주: VKTX, NVO, 161890 (한국콜마)</div>
+                        </div>
+                        <!-- Scenario 3 -->
+                        <div style="background: rgba(255,255,255,0.02); padding: 0.8rem; border-radius: 6px; border-left: 3px solid #ff9500;">
+                            <div style="font-weight: 700; font-size: 0.78rem; color: #fff; margin-bottom: 0.3rem;">[시나리오 3] AI 데이터센터 가동 폭증 ➡️ SMR 원자력 & 초고압 송전 인프라</div>
+                            <p style="margin: 0; font-size: 0.7rem; color: var(--text-secondary); line-height: 1.5;">기하급수적인 연산용 전력 소모량으로 미국 그리드 송전망 마비 우려 증가. 탄소 배출 없는 24시간 상시 전원인 <strong>SMR(소형원자로) 및 초고압 기저변압기 인프라 설비</strong> 독점 수혜국면 진입.</p>
+                            <div style="font-size: 0.65rem; color: #ff9500; margin-top: 0.4rem; font-weight: 600;">핵심 수혜주: PLTR (AI 전력 관제), 방산/전설 밸류체인</div>
+                        </div>
                     </div>
                 </div>
             </div>
