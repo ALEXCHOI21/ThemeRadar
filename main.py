@@ -13,6 +13,8 @@ import ccxt
 from telegram_bot import send_telegram_message
 import pandas as pd
 
+from dotenv import load_dotenv
+
 # Load environment configuration
 load_dotenv()
 
@@ -1010,6 +1012,10 @@ async def scanner_scheduler():
 # Start the background scheduler task when FastAPI starts
 @app.on_event("startup")
 async def startup_event():
+    # Serverless check: Vercel does not allow background execution loops on boot
+    if os.getenv("VERCEL") == "1":
+        print("[Engine] Serverless environment detected. Skipping background scheduler loop.")
+        return
     asyncio.create_task(scanner_scheduler())
     send_telegram_message("🤖 *[Bison Engine]* _실시간 멀티 종목 스캐너 백그라운드 구동 시작_")
 
