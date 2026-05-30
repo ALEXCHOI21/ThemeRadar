@@ -370,6 +370,75 @@ def search_individual_stock(query: str):
         "록히드마틴": "LMT", "레이시온": "RTX", "마이크로소프트": "MSFT", "아마존": "AMZN"
     }
 
+    # Theme and Sector mapping for predefined stocks
+    stock_theme_map = {
+        "NVDA": "Generative AI & Data Center Hardware",
+        "AVGO": "Generative AI & Data Center Hardware",
+        "ANET": "Generative AI & Data Center Hardware",
+        "SMCI": "Generative AI & Data Center Hardware",
+        "LLY": "GLP-1 Obesity & Diabetes Therapeutics",
+        "NVO": "GLP-1 Obesity & Diabetes Therapeutics",
+        "VKTX": "GLP-1 Obesity & Diabetes Therapeutics",
+        "PLTR": "Defense & Intelligence AI Platforms",
+        "LMT": "Defense & Intelligence AI Platforms",
+        "RTX": "Defense & Intelligence AI Platforms",
+        "MSFT": "Cloud Infrastructure & Hyperscalers",
+        "AMZN": "Cloud Infrastructure & Hyperscalers",
+        "042700": "HBM (대역폭 메모리) 반도체 고부장 장비",
+        "031980": "HBM (대역폭 메모리) 반도체 고부장 장비",
+        "039440": "HBM (대역폭 메모리) 반도체 고부장 장비",
+        "089030": "HBM (대역폭 메모리) 반도체 고부장 장비",
+        "012450": "K-방산 글로벌 수출 밸류체인",
+        "079550": "K-방산 글로벌 수출 밸류체인",
+        "064350": "K-방산 글로벌 수출 밸류체인",
+        "257720": "K-뷰티 & 글로벌 OEM/ODM 유통망",
+        "161890": "K-뷰티 & 글로벌 OEM/ODM 유통망",
+        "192820": "K-뷰티 & 글로벌 OEM/ODM 유통망",
+        "003670": "차세대 배터리 양극재 & 친환경 핵심소재",
+        "450080": "차세대 배터리 양극재 & 친환경 핵심소재"
+    }
+    stock_sector_map = {
+        "NVDA": "정보기술 (Technology)",
+        "AVGO": "정보기술 (Technology)",
+        "ANET": "정보기술 (Technology)",
+        "SMCI": "정보기술 (Technology)",
+        "LLY": "헬스케어 (Healthcare)",
+        "NVO": "헬스케어 (Healthcare)",
+        "VKTX": "헬스케어 (Healthcare)",
+        "PLTR": "정보기술 (Technology)",
+        "LMT": "산업재/방산 (Industrials)",
+        "RTX": "산업재/방산 (Industrials)",
+        "MSFT": "정보기술 (Technology)",
+        "AMZN": "경기소비재 (Consumer Cyclical)",
+        "042700": "반도체 장비 (Semiconductors)",
+        "031980": "반도체 장비 (Semiconductors)",
+        "039440": "반도체 장비 (Semiconductors)",
+        "089030": "반도체 장비 (Semiconductors)",
+        "012450": "방위산업 (Defense)",
+        "079550": "방위산업 (Defense)",
+        "064350": "방위산업 (Defense)",
+        "257720": "화장품 유통 (Beauty)",
+        "161890": "화장품 제조 (Beauty)",
+        "192820": "화장품 제조 (Beauty)",
+        "003670": "2차전지 소재 (Basic Materials)",
+        "450080": "2차전지 소재 (Basic Materials)"
+    }
+
+    # Sector localization mapping
+    sector_mapping = {
+        "Technology": "정보기술 (Technology)",
+        "Healthcare": "헬스케어 (Healthcare)",
+        "Financial Services": "금융 서비스 (Financial Services)",
+        "Consumer Cyclical": "경기소비재 (Consumer Cyclical)",
+        "Consumer Defensive": "필수소비재 (Consumer Defensive)",
+        "Industrials": "산업재 (Industrials)",
+        "Communication Services": "통신 서비스 (Communication Services)",
+        "Basic Materials": "기초소재 (Basic Materials)",
+        "Energy": "에너지 (Energy)",
+        "Utilities": "유틸리티 (Utilities)",
+        "Real Estate": "부동산 (Real Estate)"
+    }
+
     # First check name mapping
     target_symbol = clean_query
     if clean_query in name_to_symbol:
@@ -391,7 +460,9 @@ def search_individual_stock(query: str):
             "segment_revenue_fact": str(stock_data["segment_revenue_fact"]),
             "volume_amount": str(stock_data["volume_amount"]),
             "revenue_2026_q1": str(stock_data["revenue_2026_q1"]),
-            "net_capital_flow": str(stock_data["net_capital_flow"])
+            "net_capital_flow": str(stock_data["net_capital_flow"]),
+            "sector": str(stock_sector_map.get(target_symbol, "기타 섹터")),
+            "theme": str(stock_theme_map.get(target_symbol, "독립 상장 테마"))
         }
 
     # Dynamic yfinance resolution
@@ -480,6 +551,9 @@ def search_individual_stock(query: str):
             operating_margins = 0.1
         segment_text = f"{sect} - {ind} (분기 영업이익률 {operating_margins*100:.1f}% 기록)"
 
+        resolved_sector = sector_mapping.get(sect, sect)
+        resolved_theme = f"{ind} 관련주" if ind != "정보 미비" else "독립 상장 테마"
+
         volume_m = info.get("volume", 1000000)
         previous_close = info.get("previousClose", 10.0)
         if volume_m is None: volume_m = 1000000
@@ -502,7 +576,9 @@ def search_individual_stock(query: str):
             "segment_revenue_fact": str(segment_text),
             "volume_amount": str(volume_str),
             "revenue_2026_q1": str(q1_rev_str),
-            "net_capital_flow": "🟢 기관 순유입 우세 (13F 홀딩 지분 잠금)" if inst_pct >= 60 else "🟡 중립 (개인/기관 혼조 거래)"
+            "net_capital_flow": "🟢 기관 순유입 우세 (13F 홀딩 지분 잠금)" if inst_pct >= 60 else "🟡 중립 (개인/기관 혼조 거래)",
+            "sector": str(resolved_sector),
+            "theme": str(resolved_theme)
         }
     except Exception as e:
         return {"error": str(e)}

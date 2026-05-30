@@ -319,7 +319,12 @@
 
                 // Render dynamically fetched single stock data
                 document.getElementById('active-theme-name').innerText = `"${stock.name}" 정밀 분석 레포트`;
-                document.getElementById('active-theme-desc').innerText = `${stock.symbol} 종목의 2026년 1분기 실제 사업 매출 성숙도 및 기관 매집 유출입 규모`;
+                
+                let sectorDesc = '';
+                if (stock.sector || stock.theme) {
+                    sectorDesc = `[소속 섹터: ${stock.sector || '정보 미비'} | 테마: ${stock.theme || '기타 테마'}] `;
+                }
+                document.getElementById('active-theme-desc').innerText = `${sectorDesc}${stock.symbol} 종목의 2026년 1분기 실제 사업 매출 성숙도 및 기관 매집 유출입 규모`;
 
                 tbody.innerHTML = '';
                 const tr = document.createElement('tr');
