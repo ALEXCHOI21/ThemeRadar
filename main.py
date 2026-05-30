@@ -1415,6 +1415,65 @@ async def scanner_scheduler():
         await run_market_scanner_logic()
         await asyncio.sleep(3600) # Sleep for 1 hour
 
+from update_scenarios import run_ai_scenario_generation
+import json
+
+async def daily_scenario_scheduler():
+    """
+    Background loop that runs once every 24 hours to update prediction scenarios using Gemini.
+    """
+    print("[AI Strategist] Daily Scenario Scheduler started.")
+    await asyncio.sleep(30) # Initial delay to stabilize
+    while True:
+        try:
+            run_ai_scenario_generation()
+        except Exception as e:
+            print(f"[AI Strategist] Daily scheduler run failed: {e}")
+        await asyncio.sleep(86400) # Sleep for 24 hours
+
+@app.get("/api/scenarios")
+def get_investment_scenarios():
+    """
+    Exposes the latest data-driven next sector investment scenarios database.
+    """
+    try:
+        if os.path.exists("scenarios.json"):
+            with open("scenarios.json", "r", encoding="utf-8") as f:
+                return json.load(f)
+    except Exception:
+        pass
+    
+    # Predefined fallback database if file read fails
+    return [
+        {
+            "title": "[시나리오 1] AI 하드웨어 병목 ➡️ 실리콘 포토닉스(CPO) 광통신 이동",
+            "description": "GPU 연산 가속기 랠리 극대화에 따른 서버 간 대역폭 병목 극에 달함. 구리 배선 한계를 돌파하기 위한 빛(Optics) 기반 실리실리콘 포토닉스 및 CPO 패키징 장비주로의 자금 순환 급격히 전개 예측.",
+            "stocks": "핵심 수혜주: AVGO, ANET, 042700 (한미반도체)",
+            "color": "#007aff"
+        },
+        {
+            "title": "[시나리오 2] GLP-1 비만 주사제 ➡️ 경구용 및 원료의약품(API) OEM 폭발",
+            "description": "주사제의 공급 부족 사태로 투약 편의성을 보강한 경구용(Oral) 펩타이드 비만치료제 임상 통과주 및 바이오 의약품 원료합성(API) 대량 양산 밸류체인으로의 메가 펀드 유입 임박.",
+            "stocks": "핵심 수혜주: VKTX, NVO, 161890 (한국콜마)",
+            "color": "#34c759"
+        },
+        {
+            "title": "[시나리오 3] AI 데이터센터 가동 폭증 ➡️ SMR 원자력 & 초고압 송전 인프라",
+            "description": "기하급수적인 연산용 전력 소모량으로 미국 그리드 송전망 마비 우려 증가. 탄소 배출 없는 24시간 상시 전원인 SMR(소형원자로) 및 초고압 기저변압기 인프라 설비 독점 수혜국면 진입.",
+            "stocks": "핵심 수혜주: PLTR (AI 전력 관제), 방산/전설 밸류체인",
+            "color": "#ff9500"
+        }
+    ]
+
+@app.get("/api/update_scenarios")
+@app.post("/api/update_scenarios")
+async def trigger_scenarios_update(background_tasks: BackgroundTasks):
+    """
+    Manually or cron triggers the Gemini-powered daily next-sector rotation prediction generation.
+    """
+    background_tasks.add_task(run_ai_scenario_generation)
+    return {"status": "update_initiated", "message": "Gemini AI Strategist next-sector generation started in background."}
+
 # Start the background scheduler task when FastAPI starts
 @app.on_event("startup")
 async def startup_event():
@@ -1423,7 +1482,8 @@ async def startup_event():
         print("[Engine] Serverless environment detected. Skipping background scheduler loop.")
         return
     asyncio.create_task(scanner_scheduler())
-    send_telegram_message("🤖 *[Bison Engine]* _실시간 멀티 종목 스캐너 백그라운드 구동 시작_")
+    asyncio.create_task(daily_scenario_scheduler())
+    send_telegram_message("🤖 *[Bison Engine]* _실시간 멀티 종목 스캐너 및 AI 수석 전략가 예측 스케줄러 기동 시작_")
 
 @app.post("/scan")
 async def manual_scan(background_tasks: BackgroundTasks):
