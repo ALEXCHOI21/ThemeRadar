@@ -358,17 +358,33 @@ tr:hover td {
 .stock-name-cell {
     display: flex;
     flex-direction: column;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stock-name-cell:hover {
+    transform: translateX(6px);
+}
+
+.stock-name-cell:hover .stock-name {
+    color: var(--color-blue) !important;
+}
+
+.stock-name-cell:hover .stock-symbol {
+    color: rgba(255, 255, 255, 0.6) !important;
 }
 
 .stock-symbol {
     font-size: 0.75rem;
     color: var(--text-secondary);
     font-weight: 500;
+    transition: color 0.2s ease;
 }
 
 .stock-name {
     font-weight: 600;
     color: #fff;
+    transition: color 0.2s ease;
 }
 
 /* Fact Score Badge */

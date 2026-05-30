@@ -98,6 +98,21 @@
         let allData = { kr: [], us: [] };
         let activeThemeId = null;
 
+        // TradingView chart URL generator
+        function getTradingViewUrl(symbol) {
+            const cleanSym = symbol.trim().toUpperCase();
+            const isNumeric = /^\d{6}/.test(cleanSym); // 6-digit numeric ticker
+            if (isNumeric) {
+                return `https://kr.tradingview.com/chart/?symbol=KRX:${cleanSym}`;
+            } else if (cleanSym.endsWith('.KS')) {
+                return `https://kr.tradingview.com/chart/?symbol=KRX:${cleanSym.replace('.KS', '')}`;
+            } else if (cleanSym.endsWith('.KQ')) {
+                return `https://kr.tradingview.com/chart/?symbol=KRX:${cleanSym.replace('.KQ', '')}`;
+            } else {
+                return `https://kr.tradingview.com/chart/?symbol=${cleanSym}`;
+            }
+        }
+
         // Fetch dashboard data
         async function fetchDashboardData() {
             try {
@@ -213,8 +228,8 @@
 
                 tr.innerHTML = `
                     <td>
-                        <div class="stock-name-cell">
-                            <span class="stock-name">${stock.name}</span>
+                        <div class="stock-name-cell" onclick="window.open(getTradingViewUrl('${stock.symbol}'), '_blank')" title="클릭 시 트레이딩뷰 차트로 이동 ↗" style="cursor: pointer;">
+                            <span class="stock-name" style="transition: color 0.2s ease;">${stock.name} <span style="font-size:0.7rem; color:var(--color-blue); font-weight:normal;">↗</span></span>
                             <span class="stock-symbol">${stock.symbol}</span>
                         </div>
                     </td>
@@ -326,8 +341,8 @@
 
                 tr.innerHTML = `
                     <td>
-                        <div class="stock-name-cell">
-                            <span class="stock-name">${stock.name}</span>
+                        <div class="stock-name-cell" onclick="window.open(getTradingViewUrl('${stock.symbol}'), '_blank')" title="클릭 시 트레이딩뷰 차트로 이동 ↗" style="cursor: pointer;">
+                            <span class="stock-name" style="transition: color 0.2s ease;">${stock.name} <span style="font-size:0.7rem; color:var(--color-blue); font-weight:normal;">↗</span></span>
                             <span class="stock-symbol">${stock.symbol}</span>
                         </div>
                     </td>
