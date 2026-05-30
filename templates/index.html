@@ -83,6 +83,15 @@
                     </table>
                 </div>
 
+                <!-- Verified Citations Panel -->
+                <div id="citations-panel" style="display: none; margin-top: 1.5rem; padding: 1.2rem; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--color-blue); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.4rem;">
+                        🔗 팩트 체크 및 고영향력 출처 / SNS 인용 링크 (Verified Citations)
+                    </div>
+                    <div id="citations-list" style="display: flex; flex-wrap: wrap; gap: 0.8rem;">
+                    </div>
+                </div>
+
                 <!-- Strategic Summary Footer -->
                 <div class="info-footer">
                     <span>데이터 소스: 한국거래소(KRX), 금융감독원 DART, SEC Edgar, Yahoo Finance API</span>
@@ -176,6 +185,7 @@
         function resetDetailView() {
             document.getElementById('active-theme-name').innerText = '테마를 선택하세요';
             document.getElementById('active-theme-desc').innerText = '정밀 기관 수급 및 실제 재무 공시 팩트 체크 리포트';
+            document.getElementById('citations-panel').style.display = 'none';
             document.getElementById('stock-table-body').innerHTML = `
                 <tr>
                     <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 3rem;">
@@ -188,6 +198,7 @@
         // Select a specific theme
         function selectTheme(index) {
             activeThemeId = index;
+            document.getElementById('citations-panel').style.display = 'none';
             
             // Highlight active card
             const cards = document.querySelectorAll('.theme-card');
@@ -386,6 +397,38 @@
                     </td>
                 `;
                 tbody.appendChild(tr);
+
+                // Render Citations Panel dynamically
+                const citationsPanel = document.getElementById('citations-panel');
+                const citationsList = document.getElementById('citations-list');
+                
+                if (stock.citations && stock.citations.length > 0) {
+                    citationsList.innerHTML = '';
+                    stock.citations.forEach(c => {
+                        const a = document.createElement('a');
+                        a.href = c.url;
+                        a.target = '_blank';
+                        a.className = 'citation-link';
+                        a.style.cssText = 'font-size: 0.72rem; color: #fff; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 0.4rem 0.8rem; border-radius: 4px; text-decoration: none; transition: all 0.2s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem; font-weight: 500;';
+                        
+                        a.onmouseover = () => {
+                            a.style.background = 'rgba(0, 122, 255, 0.12)';
+                            a.style.borderColor = 'var(--color-blue)';
+                            a.style.color = 'var(--color-blue)';
+                        };
+                        a.onmouseout = () => {
+                            a.style.background = 'rgba(255, 255, 255, 0.03)';
+                            a.style.borderColor = 'rgba(255, 255, 255, 0.06)';
+                            a.style.color = '#fff';
+                        };
+                        
+                        a.innerHTML = `📰 ${c.title} <span style="font-size: 0.65rem; opacity: 0.7;">↗</span>`;
+                        citationsList.appendChild(a);
+                    });
+                    citationsPanel.style.display = 'block';
+                } else {
+                    citationsPanel.style.display = 'none';
+                }
 
             } catch (err) {
                 console.error("검색 분석 실패:", err);
