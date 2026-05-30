@@ -99,7 +99,7 @@ class BithumbJWTExchange:
         price = float(r["data"]["closing_price"])
         return {'last': price}
 
-app = FastAPI(title="ChoiGPT Corp. - Bison Webhook & Real-Time Market Scanner")
+app = FastAPI(title="ChoiGPT Corp. - ThemeRadar & Bison Engine")
 
 # Initialize exchanges
 binance = None
@@ -152,8 +152,6 @@ class WebhookPayload(BaseModel):
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import yfinance as yf
-
-app = FastAPI(title="ChoiGPT Corp. - Bison Webhook & ThemeRadar Dashboard")
 
 # Mount Static and Templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
