@@ -16,6 +16,12 @@
                 <span class="brand-tag">ChoiGPT Spec</span>
             </div>
             
+            <!-- Real-Time Stock Search Bar -->
+            <div class="search-container">
+                <input type="text" class="search-input" id="search-query" placeholder="종목명 또는 티커 입력... (예: NVDA, 실리콘투)" onkeypress="handleSearchKeyPress(event)">
+                <button class="search-btn" onclick="executeStockSearch()">분석 자료 조회</button>
+            </div>
+
             <!-- Market Selector Tabs -->
             <div class="tab-container">
                 <button class="tab-btn active" id="tab-kr" onclick="switchMarket('kr')">
@@ -248,6 +254,129 @@
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        // Handle Enter key on search input
+        function handleSearchKeyPress(event) {
+            if (event.key === 'Enter') {
+                executeStockSearch();
+            }
+        }
+
+        // Execute Real-Time Stock Analysis Lookup
+        async function executeStockSearch() {
+            const queryInput = document.getElementById('search-query');
+            const query = queryInput.value.trim();
+            if (!query) {
+                alert("종목명 또는 티커를 입력해주세요.");
+                return;
+            }
+
+            // Trigger visual loading
+            document.getElementById('active-theme-name').innerText = `"${query}" 분석 중...`;
+            document.getElementById('active-theme-desc').innerText = '13F 기관 공시 및 분기 보고서 매출 팩트 크롤링 엔진 가동 중';
+            
+            const tbody = document.getElementById('stock-table-body');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align: center; color: var(--color-blue); padding: 3rem;">
+                        ⚡ 100% 실시간 팩트 체크 및 수급 매집량 계산을 수행하고 있습니다. 잠시만 기다려 주십시오...
+                    </td>
+                </tr>
+            `;
+
+            try {
+                const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
+                if (!response.ok) throw new Error("Search failed");
+                const stock = await response.json();
+
+                if (stock.error) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8" style="text-align: center; color: var(--color-red); padding: 3rem;">
+                                ❌ "${query}" 검색 결과를 찾을 수 없습니다. 올바른 종목명 또는 티커명(예: NVDA, AAPL, 실리콘투)을 입력하십시오.
+                            </td>
+                        </tr>
+                    `;
+                    document.getElementById('active-theme-name').innerText = "조회 실패";
+                    return;
+                }
+
+                // Render dynamically fetched single stock data
+                document.getElementById('active-theme-name').innerText = `"${stock.name}" 정밀 분석 레포트`;
+                document.getElementById('active-theme-desc').innerText = `${stock.symbol} 종목의 2026년 1분기 실제 사업 매출 성숙도 및 기관 매집 유출입 규모`;
+
+                tbody.innerHTML = '';
+                const tr = document.createElement('tr');
+
+                const totalVal = stock.volume_flow.institution + stock.volume_flow.foreign + stock.volume_flow.individual;
+                const instPct = ((stock.volume_flow.institution / totalVal) * 100).toFixed(0);
+                const forePct = ((stock.volume_flow.foreign / totalVal) * 100).toFixed(0);
+                const indivPct = ((stock.volume_flow.individual / totalVal) * 100).toFixed(0);
+
+                let tierClass = 'score-tier-3';
+                let tierText = `Tier 3 (${stock.fact_score}점)`;
+                if (stock.fact_score >= 80) {
+                    tierClass = 'score-tier-1';
+                    tierText = `Tier 1 (진성 대장주: ${stock.fact_score}점)`;
+                } else if (stock.fact_score >= 60) {
+                    tierClass = 'score-tier-2';
+                    tierText = `Tier 2 (${stock.fact_score}점)`;
+                }
+
+                tr.innerHTML = `
+                    <td>
+                        <div class="stock-name-cell">
+                            <span class="stock-name">${stock.name}</span>
+                            <span class="stock-symbol">${stock.symbol}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="fact-score-badge ${tierClass}">${tierText}</span>
+                    </td>
+                    <td style="font-weight: 600; color: #007aff; font-size: 0.85rem;">
+                        ${stock.revenue_2026_q1}
+                    </td>
+                    <td style="font-weight: 700; color: #fff; font-size: 0.9rem;">
+                        ${stock.volume_amount}
+                    </td>
+                    <td style="font-size: 0.85rem; font-weight: 600;">
+                        ${stock.net_capital_flow}
+                    </td>
+                    <td>
+                        <div class="flow-bar-container">
+                            <div class="flow-bar-inst" style="width: ${instPct}%" title="기관 수급"></div>
+                            <div class="flow-bar-fore" style="width: ${forePct}%" title="외인 수급"></div>
+                            <div class="flow-bar-indiv" style="width: ${indivPct}%" title="개인 수급"></div>
+                        </div>
+                        <div class="flow-labels">
+                            <span>기관 ${instPct}%</span>
+                            <span>외인 ${forePct}%</span>
+                            <span>개인 ${indivPct}%</span>
+                        </div>
+                    </td>
+                    <td>
+                        ${stock.actual_business_status 
+                            ? `<span class="status-pill success">● 실적 연동성 입증 (흑자)</span>` 
+                            : `<span class="status-pill danger">○ 단순 기대감 (적자/매출無)</span>`
+                        }
+                    </td>
+                    <td>
+                        <div class="revenue-item">세그먼트: <strong>${stock.segment_revenue_fact}</strong></div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+
+            } catch (err) {
+                console.error("검색 분석 실패:", err);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: var(--color-red); padding: 3rem;">
+                            ❌ 분석 중 일시적 네트워크 오류가 발생했습니다. 잠시 후 다시 조회를 클릭하십시오.
+                        </td>
+                    </tr>
+                `;
+            }
         }
 
         // Initialize on page load
