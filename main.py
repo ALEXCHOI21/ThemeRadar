@@ -8,10 +8,23 @@ import urllib.parse
 import jwt
 from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
 from pydantic import BaseModel
-import ccxt.pro as ccxtpro
-import ccxt
-from telegram_bot import send_telegram_message
 import pandas as pd
+
+# Safe Mock or Conditional Imports for Serverless Deployment
+if os.getenv("VERCEL") == "1":
+    # Serverless Mocking to bypass ccxtpro/telegram imports crash
+    class ccxtpro:
+        pass
+    class ccxt:
+        @staticmethod
+        def binanceusdm(args):
+            return None
+    def send_telegram_message(msg):
+        print(f"[Telegram Mock] {msg}")
+else:
+    import ccxt.pro as ccxtpro
+    import ccxt
+    from telegram_bot import send_telegram_message
 
 from dotenv import load_dotenv
 
