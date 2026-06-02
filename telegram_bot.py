@@ -10,7 +10,7 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 def send_telegram_message(message: str) -> bool:
     """
-    Sends a styled markdown message to the Telegram bot channel.
+    Sends a styled HTML message to the Telegram bot channel.
     """
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
         print("[Telegram] Token or Chat ID is missing in configuration.")
@@ -20,7 +20,7 @@ def send_telegram_message(message: str) -> bool:
     payload = {
         "chat_id": TELEGRAM_CHAT_ID,
         "text": message,
-        "parse_mode": "Markdown"
+        "parse_mode": "HTML"
     }
     
     try:
@@ -37,7 +37,7 @@ def send_telegram_message(message: str) -> bool:
 
 def send_telegram_photo(image_path: str, caption: str = "") -> bool:
     """
-    Sends a card image to the Telegram bot channel.
+    Sends a card image with HTML caption to the Telegram bot channel.
     """
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
         print("[Telegram] Token or Chat ID is missing in configuration.")
@@ -55,7 +55,7 @@ def send_telegram_photo(image_path: str, caption: str = "") -> bool:
             data = {
                 "chat_id": TELEGRAM_CHAT_ID,
                 "caption": caption,
-                "parse_mode": "Markdown"
+                "parse_mode": "HTML"
             }
             response = httpx.post(url, data=data, files=files, timeout=25.0)
             

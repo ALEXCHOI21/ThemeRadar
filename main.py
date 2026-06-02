@@ -1637,26 +1637,26 @@ async def run_daily_market_briefing_flow() -> bool:
         print(f"[AI Briefing Engine] PIL drawing failed: {e}")
         card_generation_success = False
         
-    # 4. 텔레그램 카드뉴스 이미지 & 캡션 전송 (실패 시 Rich Text Markdown Fallback)
+    # 4. 텔레그램 카드뉴스 이미지 & 캡션 전송 (실패 시 Rich Text HTML Fallback)
     if card_generation_success and os.path.exists(image_filename):
         caption = (
-            f"🔮 *[ChoiGPT Corp.] 오늘의 KOSPI & KOSDAQ 시황 브리핑*\n"
+            f"🔮 <b>[ChoiGPT Corp.] 오늘의 KOSPI & KOSDAQ 시황 브리핑</b>\n"
             f"───────────────────\n"
-            f"📈 *주제:* {briefing_title}\n\n"
+            f"📈 <b>주제:</b> {briefing_title}\n\n"
             f"{content_str}\n"
             f"───────────────────\n"
-            f"✅ _실시간 글로벌 수급 스캐닝 및 AI 마켓 요약 분석 완벽 렌더링 완료._"
+            f"✅ <i>실시간 글로벌 수급 스캐닝 및 AI 마켓 요약 분석 완벽 렌더링 완료.</i>"
         )
         tg_success = send_telegram_photo(image_filename, caption)
     else:
-        # Fallback: Rich Text Markdown Card
+        # Fallback: Rich Text HTML Card
         fallback_msg = (
-            f"🔮 *[ChoiGPT Corp.] 오늘의 KOSPI & KOSDAQ 시황 브리핑*\n"
+            f"🔮 <b>[ChoiGPT Corp.] 오늘의 KOSPI & KOSDAQ 시황 브리핑</b>\n"
             f"───────────────────\n"
-            f"📈 *주제:* {briefing_title}\n\n"
+            f"📈 <b>주제:</b> {briefing_title}\n\n"
             f"<blockquote>{content_str}</blockquote>\n"
             f"───────────────────\n"
-            f"⚠️ _서버 환경 제약으로 텍스트 전용 카드뉴스로 즉시 대체 전송되었습니다._"
+            f"⚠️ <i>서버 환경 제약으로 텍스트 전용 카드뉴스로 즉시 대체 전송되었습니다.</i>"
         )
         tg_success = send_telegram_message(fallback_msg)
         
