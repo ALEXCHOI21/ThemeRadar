@@ -1676,11 +1676,36 @@ async def trigger_briefing_card_send_sync():
     """
     Synchronously triggers the briefing card flow and returns the exact execution result or raw error message for live debugging.
     """
+    import os
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+    gemini_key = os.getenv("GEMINI_API_KEY")
+    
+    env_status = {
+        "TELEGRAM_BOT_TOKEN_configured": token is not None,
+        "TELEGRAM_BOT_TOKEN_length": len(token) if token else 0,
+        "TELEGRAM_BOT_TOKEN_preview": f"{token[:8]}..." if token and len(token) > 8 else "None",
+        "TELEGRAM_CHAT_ID_configured": chat_id is not None,
+        "TELEGRAM_CHAT_ID_length": len(chat_id) if chat_id else 0,
+        "TELEGRAM_CHAT_ID_preview": f"{chat_id[:6]}..." if chat_id and len(chat_id) > 6 else "None",
+        "GEMINI_API_KEY_configured": gemini_key is not None,
+        "GEMINI_API_KEY_length": len(gemini_key) if gemini_key else 0
+    }
+    
     try:
         success = await run_daily_market_briefing_flow()
-        return {"status": "completed", "success": success}
+        return {
+            "status": "completed",
+            "success": success,
+            "env_status": env_status
+        }
     except Exception as e:
         import traceback
-        return {"status": "failed", "error": str(e), "traceback": traceback.format_exc()}
+        return {
+            "status": "failed",
+            "error": str(e),
+            "traceback": traceback.format_exc(),
+            "env_status": env_status
+        }
 
 
