@@ -1651,7 +1651,7 @@ async def run_daily_market_briefing_flow() -> bool:
         
     # 3. PIL을 통한 카드 이미지 합성
     content_str = "\n".join(briefing_bullets)
-    image_filename = "daily_market_briefing.png"
+    image_filename = "/tmp/daily_market_briefing.png"
     card_generation_success = False
     
     try:
@@ -1846,7 +1846,7 @@ async def trigger_briefing_card_send_sync():
             
         # 3. PIL 드로잉
         content_str = "\n".join(briefing_bullets)
-        image_filename = "daily_market_briefing.png"
+        image_filename = "/tmp/daily_market_briefing.png"
         card_generation_success = False
         
         try:
