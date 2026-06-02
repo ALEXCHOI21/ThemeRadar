@@ -15,6 +15,10 @@
     {
       "path": "/api/update_scenarios",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/send_briefing_card",
+      "schedule": "40 6 * * 1-5"
     }
   ]
 }

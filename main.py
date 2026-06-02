@@ -1416,6 +1416,8 @@ async def scanner_scheduler():
         await asyncio.sleep(3600) # Sleep for 1 hour
 
 from update_scenarios import run_ai_scenario_generation
+from telegram_bot import send_telegram_photo
+from card_generator import generate_market_briefing_card
 import json
 
 async def daily_scenario_scheduler():
