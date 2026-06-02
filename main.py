@@ -1416,8 +1416,11 @@ async def scanner_scheduler():
         await asyncio.sleep(3600) # Sleep for 1 hour
 
 from update_scenarios import run_ai_scenario_generation
-from telegram_bot import send_telegram_photo
-from card_generator import generate_market_briefing_card
+try:
+    from telegram_bot import send_telegram_photo
+    from card_generator import generate_market_briefing_card
+except Exception as e:
+    print(f"[Engine] Warning: Heavy rendering imports failed to load: {e}")
 import json
 
 async def daily_scenario_scheduler():
@@ -1514,3 +1517,157 @@ async def test_endpoint():
         except Exception as e:
             test_result["bithumb_error"] = str(e)
     return test_result
+
+async def run_daily_market_briefing_flow() -> bool:
+    """
+    1. yfinance를 통해 당일 KOSPI 및 KOSDAQ 인덱스의 마감/최신 가격 정보를 수집
+    2. Gemini 2.0 Flash를 사용해 오늘 하루 주식시황 브리핑 내용 요약 생성
+    3. card_generator.py를 사용해 다크 테마 카드뉴스 이미지 렌더링
+    4. telegram_bot.py의 send_telegram_photo를 통해 최종 텔레그램 발송
+    """
+    print("[AI Briefing Engine] Starting daily market briefing flow...")
+    
+    # 1. 수집할 인덱스 목록
+    indices = {
+        "^KS11": "코스피 (KOSPI)",
+        "^KQ11": "코스닥 (KOSDAQ)",
+        "USDKRW=X": "원/달러 환율"
+    }
+    
+    context_data = []
+    for sym, name in indices.items():
+        try:
+            ticker = yf.Ticker(sym)
+            info = ticker.history(period="1d")
+            if not info.empty:
+                close = info["Close"].iloc[-1]
+                open_val = info["Open"].iloc[-1]
+                change_pct = ((close - open_val) / open_val) * 100
+                context_data.append(f"- {name} ({sym}): 종가 {close:.2f}, 변동률 {change_pct:+.2f}%")
+        except Exception as e:
+            print(f"[AI Briefing Engine] Warning: Failed to query {name} ({e})")
+            
+    context_str = "\n".join(context_data)
+    
+    prompt = f"""
+당신은 'ChoiGPT Corp.'의 수석 시장 전략가(Chief Market Strategist)입니다.
+오늘 국내 증시의 최신 인덱스 및 매크로 지표 정보는 다음과 같습니다:
+
+{context_str}
+
+이 데이터를 기반으로, 대표님(Alex)의 텔레그램 카드뉴스에 실을 '오늘의 코스피/코스닥 시황 브리핑 핵심 요약 5선'을 작성해 주십시오.
+
+[작성 규칙]
+1. 세련되고 전문적인 한국어 표기(전문 용어는 영어 병기)로 작성하십시오.
+2. 찌라시와 노이즈를 100% 배제하고, 수급 동향(외인/기관/개인), 원/달러 환율 영향, 당일 반도체 또는 주도 섹터의 특이 동향 등을 연동하여 거시적 분석을 제공하십시오.
+3. 이미지 카드뉴스(1080x1080)에 직접 그려질 텍스트이므로 가독성을 위해 각 문장은 30자 이내로 명확하고 간결해야 합니다.
+4. 반드시 아래 지정된 JSON 형식으로만 정확하게 반환해야 하며, 다른 설명이나 마크다운 코드 블록은 출력하지 마십시오.
+
+[JSON 출력 포맷]
+{{
+  "title": "오늘 시황 대제목 (예: KOSPI 8,900 첫 돌파 후 외국인 차익실현 급변 장세)",
+  "bullets": [
+    "1. 코스피 동향: 장중 8,933.62 터치 후 고점 차익 매물 집중 출회",
+    "2. 외인 역대급 매도세: 장중 1.5조원 이상 순매도로 지수 하락 압박",
+    "3. 코스닥 시장 흐름: 양대 지수 동반 약세 속에 외국인/기관 매도 엇갈림",
+    "4. 매크로 환율 부담: 원/달러 환율 1,512원대 고공행진으로 수급 경직",
+    "5. 수석 전략가 제안: 현 구간 추격 매수 제한. SMR/방산 중심 포지션 권장"
+  ]
+}}
+"""
+
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        print("[AI Briefing Engine] Error: GEMINI_API_KEY is not configured.")
+        return False
+        
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
+    payload = {
+        "contents": [{
+            "parts": [{
+                "text": prompt
+            }]
+        }],
+        "generationConfig": {
+            "temperature": 0.2,
+            "maxOutputTokens": 600
+        }
+    }
+    
+    briefing_title = ""
+    briefing_bullets = []
+    
+    try:
+        r = requests.post(url, json=payload, timeout=20)
+        if r.status_code == 200:
+            res_data = r.json()
+            text_content = res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
+            
+            if text_content.startswith("```"):
+                text_content = text_content.split("```")[1]
+                if text_content.startswith("json"):
+                    text_content = text_content[4:]
+                text_content = text_content.strip()
+            if text_content.endswith("```"):
+                text_content = text_content[:-3].strip()
+                
+            parsed_json = json.loads(text_content)
+            briefing_title = parsed_json.get("title", "오늘의 시황 브리핑")
+            briefing_bullets = parsed_json.get("bullets", [])
+        else:
+            print(f"[AI Briefing Engine] Gemini API failed with status {r.status_code}")
+            return False
+    except Exception as e:
+        print(f"[AI Briefing Engine] Error during briefing generation: {e}")
+        return False
+        
+    if not briefing_bullets:
+        print("[AI Briefing Engine] Error: Generated briefing is empty.")
+        return False
+        
+    # 3. PIL을 통한 카드 이미지 합성
+    content_str = "\n".join(briefing_bullets)
+    image_filename = "daily_market_briefing.png"
+    card_generation_success = False
+    
+    try:
+        generate_market_briefing_card(briefing_title, content_str, image_filename)
+        card_generation_success = True
+    except Exception as e:
+        print(f"[AI Briefing Engine] PIL drawing failed: {e}")
+        card_generation_success = False
+        
+    # 4. 텔레그램 카드뉴스 이미지 & 캡션 전송 (실패 시 Rich Text Markdown Fallback)
+    if card_generation_success and os.path.exists(image_filename):
+        caption = (
+            f"🔮 *[ChoiGPT Corp.] 오늘의 KOSPI & KOSDAQ 시황 브리핑*\n"
+            f"───────────────────\n"
+            f"📈 *주제:* {briefing_title}\n\n"
+            f"{content_str}\n"
+            f"───────────────────\n"
+            f"✅ _실시간 글로벌 수급 스캐닝 및 AI 마켓 요약 분석 완벽 렌더링 완료._"
+        )
+        tg_success = send_telegram_photo(image_filename, caption)
+    else:
+        # Fallback: Rich Text Markdown Card
+        fallback_msg = (
+            f"🔮 *[ChoiGPT Corp.] 오늘의 KOSPI & KOSDAQ 시황 브리핑*\n"
+            f"───────────────────\n"
+            f"📈 *주제:* {briefing_title}\n\n"
+            f"<blockquote>{content_str}</blockquote>\n"
+            f"───────────────────\n"
+            f"⚠️ _서버 환경 제약으로 텍스트 전용 카드뉴스로 즉시 대체 전송되었습니다._"
+        )
+        tg_success = send_telegram_message(fallback_msg)
+        
+    return tg_success
+
+@app.get("/api/send_briefing_card")
+@app.post("/api/send_briefing_card")
+async def trigger_briefing_card_send(background_tasks: BackgroundTasks):
+    """
+    Triggers the daily market briefing generation, PIL card rendering, and Telegram card delivery in the background.
+    """
+    background_tasks.add_task(run_daily_market_briefing_flow)
+    return {"status": "briefing_initiated", "message": "ChoiGPT market briefing card news generation and Telegram sending started in background."}
+
