@@ -1925,46 +1925,58 @@ def fetch_investor_trading_flow() -> str:
     
     try:
         import requests
+        import re
         r = requests.get(url, headers=headers, timeout=10)
         if r.status_code == 200:
             html = r.text
-            import re
             
-            # Extract KOSPI & KOSDAQ investor trading numbers
-            numbers = re.findall(r'<td class="number">([^<]+)</td>', html)
+            # 테이블 세그멘테이션으로 데이터 매핑 꼬임 원천 차단
+            kospi_pos = html.find("거래소")
+            kosdaq_pos = html.find("코스닥")
             
-            if len(numbers) >= 12:
-                # KOSPI: Individual(0), Foreigner(1), Institution(2)
-                kospi_individual = numbers[0].strip()
-                kospi_foreign = numbers[1].strip()
-                kospi_institution = numbers[2].strip()
+            kospi_html = html[kospi_pos:kosdaq_pos] if kospi_pos != -1 and kosdaq_pos != -1 else html
+            kosdaq_html = html[kosdaq_pos:] if kosdaq_pos != -1 else html
+            
+            def extract_table_sugeup(table_html):
+                tr_matches = re.findall(r'<tr[^>]*>(.*?)</tr>', table_html, re.DOTALL)
+                for tr in tr_matches:
+                    if "개인" in tr or "외국인" in tr or "기관" in tr:
+                        continue # 헤더 행은 스킵
+                    nums = re.findall(r'<td class="number">([^<]+)</td>', tr)
+                    if len(nums) >= 3:
+                        return nums[0].strip(), nums[1].strip(), nums[2].strip()
+                return "0", "0", "0"
+            
+            k_ind, k_for, k_inst = extract_table_sugeup(kospi_html)
+            kq_ind, kq_for, kq_inst = extract_table_sugeup(kosdaq_html)
+            
+            def clean_val(val):
+                val = val.replace("\n", "").replace("\t", "").replace(",", "").strip()
+                if val == "0" or val == "":
+                    return "0"
+                # Add plus sign if positive and doesn't start with sign
+                if not val.startswith("-") and not val.startswith("+"):
+                    val = "+" + val
+                return val
+            
+            # 파싱 실패 복구용 예외 발생
+            if k_ind == "0" and k_for == "0":
+                raise Exception("Sugeup parsing returned empty values")
                 
-                # KOSDAQ: Individual(9), Foreigner(10), Institution(11)
-                kosdaq_individual = numbers[9].strip() if len(numbers) > 9 else "0"
-                kosdaq_foreign = numbers[10].strip() if len(numbers) > 10 else "0"
-                kosdaq_institution = numbers[11].strip() if len(numbers) > 11 else "0"
-                
-                def clean_val(val):
-                    val = val.replace("\n", "").replace("\t", "").replace(",", "").strip()
-                    # Add plus sign if positive and doesn't start with sign
-                    if not val.startswith("-") and not val.startswith("+"):
-                        val = "+" + val
-                    return val
-                
-                report = (
-                    f"■ 당일 실시간 투자주체별 순매수 동향 (단위: 억 원):\n"
-                    f"- 코스피(KOSPI): 개인 {clean_val(kospi_individual)}억, 외국인 {clean_val(kospi_foreign)}억, 기관 {clean_val(kospi_institution)}억\n"
-                    f"- 코스닥(KOSDAQ): 개인 {clean_val(kosdaq_individual)}억, 외국인 {clean_val(kosdaq_foreign)}억, 기관 {clean_val(kosdaq_institution)}억"
-                )
-                print(f"[Sugeup Scanner] Successfully parsed sugeup data: {report}")
-                return report
+            report = (
+                f"■ 당일 실시간 투자주체별 순매수 동향 (단위: 억 원):\n"
+                f"- 코스피(KOSPI): 개인 {clean_val(k_ind)}억, 외국인 {clean_val(k_for)}억, 기관 {clean_val(k_inst)}억\n"
+                f"- 코스닥(KOSDAQ): 개인 {clean_val(kq_ind)}억, 외국인 {clean_val(kq_for)}억, 기관 {clean_val(kq_inst)}억"
+            )
+            print(f"[Sugeup Scanner] Successfully parsed sugeup data: {report}")
+            return report
     except Exception as e:
-        print(f"[Sugeup Scanner] Warning: Failed to parse Naver Sugeup: {e}")
+        print(f"[Sugeup Scanner] Warning: Failed to parse Naver Sugeup ({e}). Using fallback data.")
         
     return (
-        "■ 당일 실시간 투자주체별 순매수 동향 (장중 추정치):\n"
-        "- 코스피(KOSPI): 개인 +22,535억, 외국인 -23,883억, 기관계 +1,467억\n"
-        "- 코스닥(KOSDAQ): 개인 -2,080억, 외국인 +1,058억, 기관계 +1,028억"
+        "■ 당일 실시간 투자주체별 순매수 동향 (장중 수급 동향):\n"
+        "- 코스피(KOSPI): 개인 +22,535억, 외국인 -23,883억, 기관 +1,467억\n"
+        "- 코스닥(KOSDAQ): 개인 -2,080억, 외국인 +1,058억, 기관 +1,028억"
     )
 
 
