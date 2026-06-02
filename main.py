@@ -1671,3 +1671,16 @@ async def trigger_briefing_card_send(background_tasks: BackgroundTasks):
     background_tasks.add_task(run_daily_market_briefing_flow)
     return {"status": "briefing_initiated", "message": "ChoiGPT market briefing card news generation and Telegram sending started in background."}
 
+@app.get("/api/send_briefing_card_sync")
+async def trigger_briefing_card_send_sync():
+    """
+    Synchronously triggers the briefing card flow and returns the exact execution result or raw error message for live debugging.
+    """
+    try:
+        success = await run_daily_market_briefing_flow()
+        return {"status": "completed", "success": success}
+    except Exception as e:
+        import traceback
+        return {"status": "failed", "error": str(e), "traceback": traceback.format_exc()}
+
+
