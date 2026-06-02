@@ -6,12 +6,28 @@ from PIL import Image, ImageDraw, ImageFont
 def get_hangul_font(size=20):
     """
     Search for a valid Korean TrueType font to prevent character breakages.
-    Platform Agnostic defensive design.
+    Downloads NanumGothic from Google Fonts on serverless environments (/tmp).
     """
+    # 1. Serverless dynamic font downloader
+    tmp_font_path = "/tmp/NanumGothic-Bold.ttf"
+    if not os.path.exists(tmp_font_path):
+        try:
+            import requests
+            print("[Font Loader] NanumGothic-Bold.ttf is missing in /tmp. Downloading...")
+            r = requests.get("https://github.com/google/fonts/raw/main/ofl/nanumgothic/NanumGothic-Bold.ttf", timeout=15)
+            if r.status_code == 200:
+                # Ensure /tmp exists (always does in Unix-like envs)
+                with open(tmp_font_path, "wb") as f:
+                    f.write(r.content)
+                print("[Font Loader] Download completed successfully.")
+        except Exception as e:
+            print(f"[Font Loader] Warning: Failed to download font: {e}")
+            
     # Candidate font paths (Windows, Linux, macOS)
     font_paths = [
-        r"C:\Windows\Fonts\malgun.ttf",        # Windows 맑은고딕
+        tmp_font_path,                         # Vercel Fallback first
         r"C:\Windows\Fonts\malgunbd.ttf",      # Windows 맑은고딕 Bold
+        r"C:\Windows\Fonts\malgun.ttf",        # Windows 맑은고딕
         r"C:\Windows\Fonts\nanum\NanumBarunGothic.ttf", # Linux Nanum
         "/usr/share/fonts/truetype/nanum/NanumBarunGothic.ttf", # Ubuntu Nanum
         "/System/Library/Fonts/Supplemental/AppleGothic.ttf",  # macOS AppleGothic
