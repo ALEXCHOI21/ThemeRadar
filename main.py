@@ -1581,7 +1581,7 @@ async def run_daily_market_briefing_flow() -> bool:
         print("[AI Briefing Engine] Error: GEMINI_API_KEY is not configured.")
         return False
         
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
     payload = {
         "contents": [{
             "parts": [{
@@ -1753,7 +1753,7 @@ async def trigger_briefing_card_send_sync():
             milestones["3_error"] = "Gemini API Key missing"
             return {"status": "failed", "success": False, "env_status": env_status, "milestones": milestones}
             
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={gemini_key}"
         payload = {
             "contents": [{
                 "parts": [{
