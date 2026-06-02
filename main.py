@@ -1590,7 +1590,8 @@ async def run_daily_market_briefing_flow() -> bool:
         }],
         "generationConfig": {
             "temperature": 0.2,
-            "maxOutputTokens": 600
+            "maxOutputTokens": 600,
+            "responseMimeType": "application/json"
         }
     }
     
@@ -1762,7 +1763,8 @@ async def trigger_briefing_card_send_sync():
             }],
             "generationConfig": {
                 "temperature": 0.2,
-                "maxOutputTokens": 600
+                "maxOutputTokens": 600,
+                "responseMimeType": "application/json"
             }
         }
         
