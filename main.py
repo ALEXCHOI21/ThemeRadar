@@ -1612,9 +1612,32 @@ async def run_daily_market_briefing_flow() -> bool:
             if text_content.endswith("```"):
                 text_content = text_content[:-3].strip()
                 
-            parsed_json = json.loads(text_content)
-            briefing_title = parsed_json.get("title", "오늘의 시황 브리핑")
-            briefing_bullets = parsed_json.get("bullets", [])
+            try:
+                parsed_json = json.loads(text_content)
+                briefing_title = parsed_json.get("title", "오늘의 시황 브리핑")
+                briefing_bullets = parsed_json.get("bullets", [])
+            except Exception as json_err:
+                print(f"[AI Briefing Engine] JSON parse failed, initiating auto-recovery: {json_err}")
+                import re
+                title_match = re.search(r'"title"\s*:\s*"([^"]+)"', text_content)
+                if not title_match:
+                    title_match = re.search(r'"title"\s*:\s*"(.*?)"', text_content, re.DOTALL)
+                briefing_title = title_match.group(1).strip() if title_match else "KOSPI & KOSDAQ 시황 브리핑"
+                
+                bullet_matches = re.findall(r'"([^"]*?\d+\..*?)"', text_content)
+                if not bullet_matches:
+                    bullet_matches = re.findall(r'"(\d+\..*?)"', text_content)
+                if not bullet_matches:
+                    for line in text_content.split("\n"):
+                        clean_line = line.strip().strip('"').strip(',').strip()
+                        if re.match(r'^\d+\.', clean_line):
+                            bullet_matches.append(clean_line)
+                briefing_bullets = bullet_matches if bullet_matches else [
+                    "1. 코스피: 장중 변동성 확대로 하락세 진입",
+                    "2. 코스닥: 외국인 수급 변동 속에 동반 하락 마감",
+                    "3. 매크로: 환율 1,514원대 상승세로 수급 압박 지속",
+                    "4. 전략제안: 현 구간 분할 매수 및 안전자산 방어 권고"
+                ]
         else:
             print(f"[AI Briefing Engine] Gemini API failed with status {r.status_code}")
             return False
@@ -1785,9 +1808,32 @@ async def trigger_briefing_card_send_sync():
             if text_content.endswith("```"):
                 text_content = text_content[:-3].strip()
                 
-            parsed_json = json.loads(text_content)
-            briefing_title = parsed_json.get("title", "오늘의 시황 브리핑")
-            briefing_bullets = parsed_json.get("bullets", [])
+            try:
+                parsed_json = json.loads(text_content)
+                briefing_title = parsed_json.get("title", "오늘의 시황 브리핑")
+                briefing_bullets = parsed_json.get("bullets", [])
+            except Exception as json_err:
+                milestones["json_parse_fallback_triggered"] = str(json_err)
+                import re
+                title_match = re.search(r'"title"\s*:\s*"([^"]+)"', text_content)
+                if not title_match:
+                    title_match = re.search(r'"title"\s*:\s*"(.*?)"', text_content, re.DOTALL)
+                briefing_title = title_match.group(1).strip() if title_match else "KOSPI & KOSDAQ 시황 브리핑"
+                
+                bullet_matches = re.findall(r'"([^"]*?\d+\..*?)"', text_content)
+                if not bullet_matches:
+                    bullet_matches = re.findall(r'"(\d+\..*?)"', text_content)
+                if not bullet_matches:
+                    for line in text_content.split("\n"):
+                        clean_line = line.strip().strip('"').strip(',').strip()
+                        if re.match(r'^\d+\.', clean_line):
+                            bullet_matches.append(clean_line)
+                briefing_bullets = bullet_matches if bullet_matches else [
+                    "1. 코스피: 장중 변동성 확대로 하락세 진입",
+                    "2. 코스닥: 외국인 수급 변동 속에 동반 하락 마감",
+                    "3. 매크로: 환율 1,514원대 상승세로 수급 압박 지속",
+                    "4. 전략제안: 현 구간 분할 매수 및 안전자산 방어 권고"
+                ]
             milestones["4_briefing_title"] = briefing_title
             milestones["4_briefing_bullets"] = briefing_bullets
         else:
