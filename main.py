@@ -1674,9 +1674,12 @@ async def trigger_briefing_card_send(background_tasks: BackgroundTasks):
 @app.get("/api/send_briefing_card_sync")
 async def trigger_briefing_card_send_sync():
     """
-    Synchronously triggers the briefing card flow and returns the exact execution result or raw error message for live debugging.
+    Synchronously triggers the briefing card flow and returns detailed execution milestones to isolate errors.
     """
     import os
+    import requests
+    import traceback
+    
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     chat_id = os.getenv("TELEGRAM_CHAT_ID")
     gemini_key = os.getenv("GEMINI_API_KEY")
@@ -1692,20 +1695,160 @@ async def trigger_briefing_card_send_sync():
         "GEMINI_API_KEY_length": len(gemini_key) if gemini_key else 0
     }
     
+    milestones = {}
+    milestones["1_start"] = True
+    
     try:
-        success = await run_daily_market_briefing_flow()
+        # 1. yfinance 수집
+        indices = {
+            "^KS11": "코스피 (KOSPI)",
+            "^KQ11": "코스닥 (KOSDAQ)",
+            "USDKRW=X": "원/달러 환율"
+        }
+        
+        context_data = []
+        for sym, name in indices.items():
+            try:
+                ticker = yf.Ticker(sym)
+                info = ticker.history(period="1d")
+                if not info.empty:
+                    close = info["Close"].iloc[-1]
+                    open_val = info["Open"].iloc[-1]
+                    change_pct = ((close - open_val) / open_val) * 100
+                    context_data.append(f"- {name} ({sym}): 종가 {close:.2f}, 변동률 {change_pct:+.2f}%")
+            except Exception as e:
+                print(f"[AI Briefing Engine] Warning: Failed to query {name} ({e})")
+                
+        context_str = "\n".join(context_data)
+        milestones["2_yfinance_context"] = context_str
+        
+        # 2. Gemini 호출
+        prompt = f"""
+당신은 'ChoiGPT Corp.'의 수석 시장 전략가(Chief Market Strategist)입니다.
+오늘 국내 증시의 최신 인덱스 및 매크로 지표 정보는 다음과 같습니다:
+
+{context_str}
+
+이 데이터를 기반으로, 대표님(Alex)의 텔레그램 카드뉴스에 실을 '오늘의 코스피/코스닥 시황 브리핑 핵심 요약 5선'을 작성해 주십시오.
+
+[작성 규칙]
+1. 세련되고 전문적인 한국어 표기(전문 용어는 영어 병기)로 작성하십시오.
+2. 찌라시와 노이즈를 100% 배제하고, 수급 동향(외인/기관/개인), 원/달러 환율 영향, 당일 반도체 또는 주도 섹터의 특이 동향 등을 연동하여 거시적 분석을 제공하십시오.
+3. 이미지 카드뉴스(1080x1080)에 직접 그려질 텍스트이므로 가독성을 위해 각 문장은 30자 이내로 명확하고 간결해야 합니다.
+4. 반드시 아래 지정된 JSON 형식으로만 정확하게 반환해야 하며, 다른 설명이나 마크다운 코드 블록은 출력하지 마십시오.
+
+[JSON 출력 포맷]
+{{
+  "title": "오늘 시황 대제목",
+  "bullets": [
+    "1. 코스피 요약...",
+    "2. 코스닥 요약...",
+    "3. 수급 흐름 요약...",
+    "4. 매크로 환율 요약...",
+    "5. 대응 권고..."
+  ]
+}}
+"""
+        if not gemini_key:
+            milestones["3_error"] = "Gemini API Key missing"
+            return {"status": "failed", "success": False, "env_status": env_status, "milestones": milestones}
+            
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_key}"
+        payload = {
+            "contents": [{
+                "parts": [{
+                    "text": prompt
+                }]
+            }],
+            "generationConfig": {
+                "temperature": 0.2,
+                "maxOutputTokens": 600
+            }
+        }
+        
+        briefing_title = ""
+        briefing_bullets = []
+        
+        r = requests.post(url, json=payload, timeout=20)
+        milestones["3_gemini_status_code"] = r.status_code
+        if r.status_code == 200:
+            res_data = r.json()
+            text_content = res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
+            
+            if text_content.startswith("```"):
+                text_content = text_content.split("```")[1]
+                if text_content.startswith("json"):
+                    text_content = text_content[4:]
+                text_content = text_content.strip()
+            if text_content.endswith("```"):
+                text_content = text_content[:-3].strip()
+                
+            parsed_json = json.loads(text_content)
+            briefing_title = parsed_json.get("title", "오늘의 시황 브리핑")
+            briefing_bullets = parsed_json.get("bullets", [])
+            milestones["4_briefing_title"] = briefing_title
+            milestones["4_briefing_bullets"] = briefing_bullets
+        else:
+            milestones["3_error"] = f"Gemini API returned {r.status_code}: {r.text}"
+            return {"status": "failed", "success": False, "env_status": env_status, "milestones": milestones}
+            
+        if not briefing_bullets:
+            milestones["4_error"] = "Briefing bullets are empty"
+            return {"status": "failed", "success": False, "env_status": env_status, "milestones": milestones}
+            
+        # 3. PIL 드로잉
+        content_str = "\n".join(briefing_bullets)
+        image_filename = "daily_market_briefing.png"
+        card_generation_success = False
+        
+        try:
+            generate_market_briefing_card(briefing_title, content_str, image_filename)
+            card_generation_success = True
+            milestones["5_card_draw"] = "Pillow card generated successfully"
+        except Exception as draw_e:
+            milestones["5_card_draw_exception"] = str(draw_e)
+            card_generation_success = False
+            
+        # 4. 텔레그램 전송
+        tg_result = False
+        if card_generation_success and os.path.exists(image_filename):
+            caption = (
+                f"🔮 <b>[ChoiGPT Corp.] 오늘의 KOSPI & KOSDAQ 시황 브리핑</b>\n"
+                f"───────────────────\n"
+                f"📈 <b>주제:</b> {briefing_title}\n\n"
+                f"{content_str}\n"
+                f"───────────────────\n"
+                f"✅ <i>실시간 글로벌 수급 스캐닝 및 AI 마켓 요약 분석 완벽 렌더링 완료.</i>"
+            )
+            tg_result = send_telegram_photo(image_filename, caption)
+            milestones["6_telegram_action"] = f"Sent Photo. Success: {tg_result}"
+        else:
+            fallback_msg = (
+                f"🔮 <b>[ChoiGPT Corp.] 오늘의 KOSPI & KOSDAQ 시황 브리핑</b>\n"
+                f"───────────────────\n"
+                f"📈 <b>주제:</b> {briefing_title}\n\n"
+                f"<blockquote>{content_str}</blockquote>\n"
+                f"───────────────────\n"
+                f"⚠️ <i>서버 환경 제약으로 텍스트 전용 카드뉴스로 즉시 대체 전송되었습니다.</i>"
+            )
+            tg_result = send_telegram_message(fallback_msg)
+            milestones["6_telegram_action"] = f"Sent Fallback Text. Success: {tg_result}"
+            
         return {
             "status": "completed",
-            "success": success,
-            "env_status": env_status
+            "success": tg_result,
+            "env_status": env_status,
+            "milestones": milestones
         }
     except Exception as e:
-        import traceback
+        milestones["error"] = str(e)
         return {
             "status": "failed",
+            "success": False,
             "error": str(e),
             "traceback": traceback.format_exc(),
-            "env_status": env_status
+            "env_status": env_status,
+            "milestones": milestones
         }
 
 
