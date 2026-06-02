@@ -9,6 +9,7 @@ import jwt
 from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
 from pydantic import BaseModel
 import pandas as pd
+from datetime import datetime
 
 # Safe Mock or Conditional Imports for Serverless Deployment
 if os.getenv("VERCEL") == "1":
