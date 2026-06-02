@@ -126,11 +126,12 @@ def generate_market_briefing_card(title: str, content: str, filepath: str = "dai
     tag_font = get_hangul_font(20)
     footer_font = get_hangul_font(18)
     
-    today_str = datetime.now().strftime("%Y-%m-%d")
+    # Format with current Korean local timezone format (Hour and Minute included)
+    today_str = datetime.now().strftime("%Y-%m-%d %H:%M")
     
     # Draw Brand Logo & Header
     draw.text((60, 60), "🔮 ChoiGPT Corp. 수석 전략가 리포트", fill="#007aff", font=get_hangul_font(28))
-    draw.text((60, 110), f"ThemeRadar Market Intelligence | {today_str}", fill="#8e8e93", font=get_hangul_font(18))
+    draw.text((60, 110), f"ThemeRadar Market Intelligence | 조사 시점: {today_str}", fill="#8e8e93", font=get_hangul_font(18))
     
     # Draw tag text inside blue glass box
     draw.text((panel_left + 65, panel_top + 50), "FACT VERIFIED 100%", fill="#30d158", font=tag_font)

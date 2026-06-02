@@ -1697,11 +1697,13 @@ async def run_daily_market_briefing_flow() -> bool:
         card_generation_success = False
         
     # 4. 텔레그램 카드뉴스 이미지 & 캡션 전송 (실패 시 Rich Text HTML Fallback)
+    check_time_str = datetime.now().strftime("%Y-%m-%d %H:%M")
     if card_generation_success and os.path.exists(image_filename):
         caption = (
             f"🔮 <b>[ChoiGPT Corp.] 오늘의 KOSPI & KOSDAQ 시황 브리핑</b>\n"
             f"───────────────────\n"
-            f"📈 <b>주제:</b> {briefing_title}\n\n"
+            f"📈 <b>주제:</b> {briefing_title}\n"
+            f"📅 <b>조사 시점:</b> {check_time_str}\n\n"
             f"{content_str}\n"
             f"───────────────────\n"
             f"✅ <i>실시간 글로벌 수급 스캐닝 및 AI 마켓 요약 분석 완벽 렌더링 완료.</i>"
@@ -1928,11 +1930,13 @@ async def trigger_briefing_card_send_sync():
             
         # 4. 텔레그램 전송
         tg_result = False
+        check_time_str = datetime.now().strftime("%Y-%m-%d %H:%M")
         if card_generation_success and os.path.exists(image_filename):
             caption = (
                 f"🔮 <b>[ChoiGPT Corp.] 오늘의 KOSPI & KOSDAQ 시황 브리핑</b>\n"
                 f"───────────────────\n"
-                f"📈 <b>주제:</b> {briefing_title}\n\n"
+                f"📈 <b>주제:</b> {briefing_title}\n"
+                f"📅 <b>조사 시점:</b> {check_time_str}\n\n"
                 f"{content_str}\n"
                 f"───────────────────\n"
                 f"✅ <i>실시간 글로벌 수급 스캐닝 및 AI 마켓 요약 분석 완벽 렌더링 완료.</i>"
